@@ -1022,17 +1022,17 @@ function matches(){
  a.forEach((oi,qi)=>{const q=QUIZ[qi];if(oi!=null&&q&&q.opts[oi])Object.assign(pref,q.opts[oi][1])});
  const scored=PRODUCTS.map(p=>{
   let sc=p.rating;const why=[];
-  if(pref.season&&p.seasons.includes(pref.season)){sc+=3;why.push(`Built for ${COLS.season.items[pref.season].toLowerCase()} — the exact weather you shop for`);}
-  if(pref.occ&&p.occasions.includes(pref.occ)){sc+=3;why.push(`Tagged for ${COLS.occasion.items[pref.occ].toLowerCase()}`);}
-  if(pref.vibe&&p.vibes.includes(pref.vibe)){sc+=2;why.push(`Sits squarely in your ${COLS.vibe.items[pref.vibe].toLowerCase()} lane`);}
-  if(pref.proj==='high'){sc+=(p.s.p>=8?3:-2);if(p.s.p>=8)why.push('You asked for room-filling — this one carries');}
-  if(pref.proj==='low'){sc+=(p.s.p<=6?3:-2);if(p.s.p<=6)why.push('Stays close to the skin, like you wanted');}
-  if(pref.long==='high'){sc+=(p.s.l>=9?3:p.s.l>=8?1:-2);if(p.s.l>=9)why.push('Lasts from morning to midnight');}
-  if(pref.bud){if(p.price<=pref.bud){sc+=2;why.push(`${money(p.price)} — inside your budget`);}else sc-=8;}
-  if(pref.want==='comp'&&p.s.c>=9){sc+=2;why.push('One of the most complimented bottles I wear');}
-  if(pref.want==='class'&&p.vibes.includes('elegant')){sc+=2;why.push('Reads quietly expensive rather than loud');}
+  if(pref.season&&p.seasons.includes(pref.season)){sc+=3;why.push({k:'season',t:`built for ${COLS.season.items[pref.season].toLowerCase()}`});}
+  if(pref.occ&&p.occasions.includes(pref.occ)){sc+=3;why.push({k:'occ',t:`suited to ${OCC_PHRASE[pref.occ]}`});}
+  if(pref.vibe&&p.vibes.includes(pref.vibe)){sc+=2;why.push({k:'vibe',t:`in your ${COLS.vibe.items[pref.vibe].toLowerCase()} lane`});}
+  if(pref.proj==='high'){sc+=(p.s.p>=8?3:-2);if(p.s.p>=8)why.push({k:'proj',t:'room-filling'});}
+  if(pref.proj==='low'){sc+=(p.s.p<=6?3:-2);if(p.s.p<=6)why.push({k:'proj',t:'close to the skin'});}
+  if(pref.long==='high'){sc+=(p.s.l>=9?3:p.s.l>=8?1:-2);if(p.s.l>=9)why.push({k:'long',t:'long-lasting'});}
+  if(pref.bud){if(p.price<=pref.bud){sc+=2;why.push({k:'bud',t:'inside your budget'});}else sc-=8;}
+  if(pref.want==='comp'&&p.s.c>=9){sc+=2;why.push({k:'want',t:'built to get noticed'});}
+  if(pref.want==='class'&&p.vibes.includes('elegant')){sc+=2;why.push({k:'want',t:'quietly expensive'});}
   const all=[...p.notes.top,...p.notes.heart,...p.notes.base];
-  if(pref.love&&pref.love.some(n=>all.includes(n))){sc+=3;why.push(`Your favourite notes (${pref.love.filter(n=>all.includes(n)).slice(0,2).join(', ').toLowerCase()}) are in its DNA`);}
+  if(pref.love&&pref.love.some(n=>all.includes(n))){sc+=3;why.push({k:'love',t:'made with notes you love',d:joinList(pref.love.filter(n=>all.includes(n)).slice(0,2).map(n=>n.toLowerCase()))});}
   if(pref.avoid&&pref.avoid.some(n=>all.includes(n)))sc-=6;
   if(pref.mode==='sig')sc+=p.s.v/3;
   if(p.stock==='out')sc-=4;
@@ -1063,17 +1063,53 @@ function vQuiz(){
  }
  app.innerHTML=`<div class="wrap"><div class="qbox">${inner}</div></div>`;
 }
+/* What sets each match apart from the other two — no two cards get the same line. */
+function matchReasons(m){
+ const ps=m.map(x=>x.p), n=ps.length;
+ const keyCount={};m.forEach(x=>new Set(x.why.map(w=>w.k)).forEach(k=>keyCount[k]=(keyCount[k]||0)+1));
+ const shared=n>1?m[0].why.filter(w=>keyCount[w.k]===n):[];
+ const notesOf=p=>[...p.notes.top,...p.notes.heart,...p.notes.base];
+ const best=(f,dir)=>{const v=ps.map(f);const t=dir>0?Math.max(...v):Math.min(...v);return v.filter(x=>x===t).length===1?v.indexOf(t):-1;};
+ const supers=[
+  [best(p=>p.price,-1),p=>`the lowest price of the three at ${money(p.price)}`],
+  [best(p=>ppw(p),-1),p=>`the best value of the three — about ${money(ppw(p))} each time you wear it`],
+  [best(p=>p.s.l,1),()=>'the longest-lasting of the three'],
+  [best(p=>p.s.p,1),()=>'the loudest of the three — it projects furthest'],
+  [best(p=>p.s.p,-1),()=>'the most discreet of the three'],
+  [best(p=>p.s.v,1),()=>'the most versatile of the three — it covers the most seasons and settings'],
+  [best(p=>p.s.c,1),()=>'the most attention-grabbing of the three'],
+  [best(p=>p.price,1),()=>'the splurge of the three'],
+ ];
+ const used=new Set();
+ return {shared:shared.map(w=>w.t), each:ps.map((p,i)=>{
+  const out=[];
+  const own=m[i].why.filter(w=>keyCount[w.k]===1&&w.k!=='long'&&w.k!=='proj');
+  if(own[0])out.push(own[0].k==='love'?`The only one with ${own[0].d}, which you love`:'The only one '+own[0].t);
+  const others=new Set(ps.filter((_,j)=>j!==i).flatMap(notesOf));
+  const uniq=notesOf(p).filter(x=>!others.has(x)).slice(0,2).map(x=>x.toLowerCase());
+  if(uniq.length)out.push(`Signature notes the others don\u2019t have: ${joinList(uniq)}`);
+  const sup=supers.find(([idx,f],k)=>idx===i&&!used.has(k));
+  if(sup){used.add(supers.indexOf(sup));out.push('It\u2019s '+sup[1](p));}
+  const otherVibes=new Set(ps.filter((_,j)=>j!==i).flatMap(q=>q.vibes));
+  const uv=p.vibes.find(v=>!otherVibes.has(v));
+  if(uv&&out.length<3)out.push(`The only one that reads ${VIBE_PHRASE[uv]}`);
+  if(out.length<2)out.push(p.desc.replace(/\.$/,''));
+  return out.slice(0,3).join('. ')+'.';
+ })};
+}
 function vQuizResults(){
  const m=matches();
+ const R=matchReasons(m);
  track('quiz_complete',{top:m[0].p.id});
  app.innerHTML=`<div class="wrap"><section>
  <div class="shead"><div><p class="eyebrow">Your results</p><h1>Your three matches</h1>
  <p class="mute small" style="margin-top:8px">Matched against your answers. Retakes keep your previous answers pre-filled.</p></div>
  <button class="chip" data-action="qstart">Retake quiz</button></div>
+ ${R.shared.length?`<p class="mute" style="margin:-6px 0 22px">All three are ${esc(joinList(R.shared))}. Here\u2019s what makes each one different:</p>`:''}
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
  ${m.map(({p,why},i)=>`<div>
    <p class="eyebrow" style="margin-bottom:8px">Match #${i+1}</p>${card(p)}
-   <p class="why">${why.slice(0,2).map(esc).join('. ')||'A strong all-rounder against your answers'}.</p>
+   <p class="why">${esc(R.each[i])}</p>
   </div>`).join('')}
  </div>
  <div style="margin-top:34px;display:flex;gap:12px;flex-wrap:wrap">
