@@ -1020,25 +1020,49 @@ function vProduct(id){
 function matches(){
  const a=state.quiz.answers,pref={};
  a.forEach((oi,qi)=>{const q=QUIZ[qi];if(oi!=null&&q&&q.opts[oi])Object.assign(pref,q.opts[oi][1])});
- const scored=PRODUCTS.map(p=>{
+ const notesOf=p=>[...p.notes.top,...p.notes.heart,...p.notes.base];
+ /* Season, flavour profile, budget and "avoid" are filters, not points — a summer
+    bottle should never outrank a winter one for a winter answer. If fewer than three
+    bottles pass, relax budget first, then flavour, then season, and say so. */
+ const filters=[
+  ['season',p=>!pref.season||p.seasons.includes(pref.season)],
+  ['vibe',p=>!pref.vibe||p.vibes.includes(pref.vibe)],
+  ['budget',p=>!pref.bud||p.price<=pref.bud*budStretch],
+  ['avoid',p=>!(pref.avoid&&pref.avoid.length)||!pref.avoid.some(n=>notesOf(p).includes(n))],
+ ];
+ let budStretch=1;
+ const relaxOrder=['budget','budget','budget','vibe','season'];
+ const instock=PRODUCTS.filter(p=>p.stock!=='out');
+ let active=filters.map(f=>f[0]),pool=[];const relaxed=[];
+ for(let step=0;;step++){
+  pool=instock.filter(p=>filters.every(([k,f])=>!active.includes(k)||f(p)));
+  if(pool.length>=3||step>=relaxOrder.length)break;
+  const r=relaxOrder[step];
+  if(r==='budget'&&budStretch<2){budStretch=budStretch===1?1.5:2;if(!relaxed.includes('budget'))relaxed.push('budget');continue;}
+  active=active.filter(k=>k!==r);if(!relaxed.includes(r))relaxed.push(r);
+ }
+ if(pool.length<3)pool=instock;
+ const scored=pool.map(p=>{
   let sc=p.rating;const why=[];
-  if(pref.season&&p.seasons.includes(pref.season)){sc+=3;why.push({k:'season',t:`built for ${COLS.season.items[pref.season].toLowerCase()}`});}
+  const all=notesOf(p);
+  if(pref.season&&p.seasons.includes(pref.season))why.push({k:'season',t:`built for ${COLS.season.items[pref.season].toLowerCase()}`});
+  if(pref.vibe&&p.vibes.includes(pref.vibe))why.push({k:'vibe',t:`in your ${COLS.vibe.items[pref.vibe].toLowerCase()} lane`});
+  if(pref.bud&&p.price<=pref.bud)why.push({k:'bud',t:'inside your budget'});
+  else if(pref.bud)sc-=4*(p.price-pref.bud)/pref.bud;
+  const loved=pref.love?pref.love.filter(n=>all.includes(n)):[];
+  if(loved.length){sc+=4+loved.length;why.push({k:'love',t:'made with notes you love',d:joinList(loved.slice(0,2).map(n=>n.toLowerCase()))});}
   if(pref.occ&&p.occasions.includes(pref.occ)){sc+=3;why.push({k:'occ',t:`suited to ${OCC_PHRASE[pref.occ]}`});}
-  if(pref.vibe&&p.vibes.includes(pref.vibe)){sc+=2;why.push({k:'vibe',t:`in your ${COLS.vibe.items[pref.vibe].toLowerCase()} lane`});}
-  if(pref.proj==='high'){sc+=(p.s.p>=8?3:-2);if(p.s.p>=8)why.push({k:'proj',t:'room-filling'});}
-  if(pref.proj==='low'){sc+=(p.s.p<=6?3:-2);if(p.s.p<=6)why.push({k:'proj',t:'close to the skin'});}
-  if(pref.long==='high'){sc+=(p.s.l>=9?3:p.s.l>=8?1:-2);if(p.s.l>=9)why.push({k:'long',t:'long-lasting'});}
-  if(pref.bud){if(p.price<=pref.bud){sc+=2;why.push({k:'bud',t:'inside your budget'});}else sc-=8;}
+  if(pref.proj==='high'){sc+=p.s.p>=8?2:-1;if(p.s.p>=8)why.push({k:'proj',t:'room-filling'});}
+  if(pref.proj==='low'){sc+=p.s.p<=6?2:-1;if(p.s.p<=6)why.push({k:'proj',t:'close to the skin'});}
+  if(pref.proj==='mid'&&p.s.p>=6&&p.s.p<=8)sc+=1;
+  if(pref.long==='high'){sc+=p.s.l>=9?2:p.s.l>=8?1:-1;if(p.s.l>=9)why.push({k:'long',t:'long-lasting'});}
+  if(pref.long==='mid'&&p.s.l>=7)sc+=1;
   if(pref.want==='comp'&&p.s.c>=9){sc+=2;why.push({k:'want',t:'built to get noticed'});}
   if(pref.want==='class'&&p.vibes.includes('elegant')){sc+=2;why.push({k:'want',t:'quietly expensive'});}
-  const all=[...p.notes.top,...p.notes.heart,...p.notes.base];
-  if(pref.love&&pref.love.some(n=>all.includes(n))){sc+=3;why.push({k:'love',t:'made with notes you love',d:joinList(pref.love.filter(n=>all.includes(n)).slice(0,2).map(n=>n.toLowerCase()))});}
-  if(pref.avoid&&pref.avoid.some(n=>all.includes(n)))sc-=6;
   if(pref.mode==='sig')sc+=p.s.v/3;
-  if(p.stock==='out')sc-=4;
   return{p,sc,why};
  }).sort((a,b)=>b.sc-a.sc);
- return scored.slice(0,3);
+ const top=scored.slice(0,3);top.relaxed=relaxed;return top;
 }
 
 function vQuiz(){
@@ -1105,6 +1129,7 @@ function vQuizResults(){
  <div class="shead"><div><p class="eyebrow">Your results</p><h1>Your three matches</h1>
  <p class="mute small" style="margin-top:8px">Matched against your answers. Retakes keep your previous answers pre-filled.</p></div>
  <button class="chip" data-action="qstart">Retake quiz</button></div>
+ ${m.relaxed.length?`<p class="small" style="margin:-6px 0 14px;color:var(--warn)">Fewer than three bottles matched everything you picked, so we loosened ${esc(joinList(m.relaxed.map(r=>({budget:'your budget',vibe:'the flavour profile',season:'the season'})[r])))} for these.</p>`:''}
  ${R.shared.length?`<p class="mute" style="margin:-6px 0 22px">All three are ${esc(joinList(R.shared))}. Here\u2019s what makes each one different:</p>`:''}
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
  ${m.map(({p,why},i)=>`<div>
