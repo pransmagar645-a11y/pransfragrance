@@ -1236,9 +1236,6 @@ function vGuide(slug){
  <p class="eyebrow" style="margin-top:18px">${g.min} min read</p>
  <h1 style="margin:10px 0 6px">${g.title}</h1>
  <p class="mute">${g.dek}</p>
- <div class="videoslot" style="margin-top:22px"><span class="pp" aria-hidden="true">▶</span>
-  <div style="flex:1"><b class="small" style="letter-spacing:.14em;text-transform:uppercase;color:var(--gold)">Watch this guide</b><p class="small mute" style="margin-top:3px">The 90-second video version</p></div>
-  <a class="btn ghost" style="padding:9px 14px;font-size:.8rem" href="${CONFIG.INSTA}" target="_blank" rel="noopener" data-action="vidclick" data-video="${g.slug}">Watch →</a></div>
  ${g.body.map(p=>/^<(h2|ul)/.test(p)?p:`<p>${p}</p>`).join('')}
  <h2 style="font-size:1.3rem">Mentioned in this guide</h2>
  <div class="grid g-prod" style="margin-top:18px">${g.pids.map(id=>card(P(id))).join('')}</div>
