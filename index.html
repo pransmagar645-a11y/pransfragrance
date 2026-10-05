@@ -254,7 +254,7 @@ footer.site{border-top:1px solid var(--line);background:var(--panel);margin-top:
 .bc a{color:var(--mute)} .bc a:hover{color:var(--gold)}
 @media(max-width:400px){.wrap{padding:0 14px}section{padding:42px 0}}
 </style>
-<script>try{if(localStorage.getItem('pf_intro_seen'))document.documentElement.classList.add('nointro')}catch(e){}</script>
+<script>try{if(sessionStorage.getItem('pf_intro'))document.documentElement.classList.add('nointro')}catch(e){}</script>
 <style>.nointro #intro{display:none!important}</style>
 </head>
 <body>
@@ -1574,14 +1574,14 @@ function closeIntro(){
  if(!introOpen())return;
  intro.classList.add('gone');
  document.body.style.overflow='';
- try{localStorage.setItem('pf_intro_seen','1')}catch(e){}
+ try{sessionStorage.setItem('pf_intro','1')}catch(e){}
  track('intro_dismiss');
  setTimeout(()=>{intro.hidden=true},900);
  app.focus({preventScroll:true});
 }
 (function initIntro(){
  let show=true;
- try{if(localStorage.getItem('pf_intro_seen'))show=false}catch(e){}
+ try{if(sessionStorage.getItem('pf_intro'))show=false}catch(e){}
  if(!show){intro.hidden=true;return;}
  intro.hidden=false;
  document.body.style.overflow='hidden';
