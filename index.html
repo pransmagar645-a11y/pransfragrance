@@ -375,7 +375,7 @@ footer.site{border-top:1px solid var(--line);background:var(--panel);margin-top:
         <p class="mute small" style="margin-bottom:12px">New arrivals and restocks go up on Instagram first.</p>
         <a class="btn" href="https://www.instagram.com/pransfragrance" target="_blank" rel="noopener">Follow @pransfragrance</a>
         <div class="paychips" style="margin-top:18px" aria-label="Accepted payment methods">
-          <span>VISA</span><span>Mastercard</span><span>AMEX</span><span>PayPal</span><span>Apple Pay</span><span>G Pay</span><span>Klarna</span>
+          <span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span>
         </div>
       </div>
     </div>
@@ -1314,7 +1314,7 @@ function vCheckout(){
   </div>
   <div style="margin-top:14px"><label class="small mute" for="coAttr">Which video sent you here? (optional — it genuinely shapes what we stock)</label>
   <select id="coAttr"><option value="">Not from a video / can\u2019t remember</option>${GO_PAGES.map(g=>`<option value="${g.key}"${state.attribution===g.key?' selected':''}>${g.video}</option>`).join('')}<option value="other">Another video</option></select></div>
-  <div class="paychips" style="margin:18px 0 14px" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>AMEX</span><span>PayPal</span><span>Apple Pay</span><span>G Pay</span><span>Klarna</span></div>
+  <div class="paychips" style="margin:18px 0 14px" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span></div>
   <button class="btn wide" type="submit">${CONFIG.CHECKOUT_URL?'Continue to secure payment':'Place order (demo checkout)'}</button>
   <p class="small mute" style="margin-top:10px">✓ Hong Kong only · ✓ In-person hand-over at an MTR station · ✓ Batch-code verified · ✓ 30-day returns on unopened items</p>
  </form></div></div>`;
@@ -1461,7 +1461,7 @@ function renderBag(){
  foot.innerHTML=`
  <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="mute">Subtotal</span><b>${money(bagTotal())}</b></div>
  <a class="btn wide" href="#/checkout">Checkout — ${money(bagTotal())}</a>
- <div class="paychips" style="margin-top:12px;justify-content:center" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>Klarna</span></div>`;
+ <div class="paychips" style="margin-top:12px;justify-content:center" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span></div>`;
 }
 function xsellHtml(){
  const inBag=state.bag.map(i=>i.id);
