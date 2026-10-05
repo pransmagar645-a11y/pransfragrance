@@ -231,6 +231,10 @@ fieldset{border:none}
 .article{max-width:720px;margin:0 auto;padding:46px 0}
 .article p{margin:16px 0;color:#d9d4c8}
 .article h2{margin-top:34px}
+.article ul{margin:16px 0 16px 1.2em;color:#d9d4c8;display:grid;gap:10px}
+.article li{padding-left:4px}
+.article li::marker{color:var(--gold)}
+.article b{color:var(--bone)}
 .pagebox{max-width:760px;margin:0 auto;padding:46px 0}
 .pagebox p{margin:14px 0;color:#d9d4c8}
 .pagebox h2{margin-top:30px;font-size:1.3rem}
@@ -724,26 +728,62 @@ const QUIZ=[
 
 /* ================= GUIDES ================= */
 const GUIDES=[
-{slug:'why-fragrance-disappears',title:'Why Your Fragrance "Disappears" After an Hour',dek:'Nose-blindness, top-note chemistry and the three fixes that actually work.',min:4,pids:['pdm-layton','lattafa-khamrah','dior-sauvage-elixir'],
- body:[`Nine times out of ten your fragrance hasn't gone anywhere — your nose has. Olfactory adaptation means your brain files a constant smell as background within 30–60 minutes and stops reporting it. The people around you still smell it clearly. The honest test: ask someone at hour four before you re-spray, or spray one wrist and smell it fresh after a walk outside.`,
- `The rest of the time, it's chemistry. The bright opening of any fragrance is built from the most volatile molecules — citrus, mint, light fruits — which evaporate fastest by design. If you bought a bottle for its first ten minutes, you bought the top notes, and no application trick brings them back. Check the base notes before buying: that's the smell you actually live with.`,
- `Three fixes that hold up: moisturise first, because fragrance oils bind to hydrated skin and slide off dry skin; spray fabric as well as skin (cotton holds scent for days — test for staining first); and choose compositions with heavier bases. The long-wearing bottles in here all have a substantial amber, wood or vanilla foundation.`]},
-{slug:'edt-vs-edp-vs-parfum',title:'EDT vs EDP vs Parfum — What You’re Actually Paying For',dek:'Concentration explained, and why "stronger" isn’t always the right buy.',min:5,pids:['chanel-bleu-parfum','dior-sauvage-elixir'],
- body:[`The letters describe perfume-oil concentration. Roughly: eau de toilette sits around 5–15% oil, eau de parfum 15–20%, and parfum/extrait 20–30%+. More oil generally means longer wear and a denser, closer scent bubble — and a higher price.`,
- `Here's what the marketing skips: brands usually rework the formula between concentrations, not just dilute it. Bleu de Chanel's EDT, EDP and Parfum are three related but distinct fragrances — the Parfum trades the EDT's sharp citrus for a creamy sandalwood base. Buying "the strongest one" of a scent you tested in EDT can land you a different smell entirely. Always test the exact concentration you intend to buy.`,
- `When is lighter better? Heat. High-oil sweet compositions can turn suffocating at 30°C, while a well-built EDT stays crisp exactly because it lifts off the skin faster. Our rule: hot weather and offices favour EDT/EDP freshness; cold air and evenings reward parfum-strength depth. That logic is baked into every season tag on this site.`]},
-{slug:'how-to-apply-fragrance',title:'How to Apply Fragrance (Most People Do It Wrong)',dek:'Spray count, placement and the rubbing myth — a 90-second fix.',min:3,pids:['dior-sauvage-elixir','jpg-le-male-elixir'],
- body:[`Placement: warm spots project scent, so target the chest, base of the throat and the sides of the neck. Skin that's hydrated holds fragrance dramatically longer, so apply after a shower onto moisturised skin, from about 10–15&nbsp;cm away — close enough to land as a wet layer, not a mist that mostly hits the air.`,
- `Don't rub your wrists together. Friction heats the skin and accelerates the top notes' evaporation, burning through the brightest part of the fragrance in minutes. Spray and let it dry untouched.`,
- `Spray count scales inversely with concentration: 4–6 sprays for a light EDT, 3–4 for an EDP, and 2–3 for elixirs and extraits — with something like Sauvage Elixir, two is genuinely enough for a working day. Over-spraying strong compositions doesn't make you smell better for longer; it makes the first two hours unpleasant for everyone in the lift. Our price-per-wear numbers assume 8 sprays; halve the sprays and you halve the cost.`]},
-{slug:'cost-per-wear',title:'Cost Per Wear: The Only Fragrance Maths That Matters',dek:'Why a HK$2,790 bottle can be cheap and a HK$300 bottle can be expensive.',min:4,pids:['creed-aventus','lattafa-khamrah','armaf-cdnim'],
- body:[`Sticker price is a bad way to judge a fragrance. The useful number is cost per wear: bottle price divided by the number of wears inside it. A millilitre holds roughly 10 sprays, so a 100&nbsp;ml bottle is about 1,000 sprays — call it 125 wears at 8 sprays each.`,
- `Run the numbers and the market looks different. Aventus at HK$2,790 works out around HK$22.32 per wear. Khamrah at HK$340 is about HK$2.72. Club de Nuit Intense Man at HK$380 lands near HK$2.90 — which is why "is Aventus worth it?" is really the question "is this occasion worth HK$22?" For a wedding, obviously. For walking the dog, that's what the HK$2.72-a-wear bottle is for.`,
- `That price-per-wear figure sits on every product page — read it before you buy, and a wrong HK$2,000 blind-buy is easy to avoid. Build a rotation where the maths matches the moment.`]},
-{slug:'fragrance-for-performers',title:'Fragrance for Performing Musicians: Stage Heat, Sweat and Sillage',dek:'What survives a three-hour set — and what your bandmates will forgive.',min:5,pids:['vr-spicebomb-extreme','lattafa-asad'],
- body:[`Stage conditions are a stress test: lights add 5–10 degrees, adrenaline means sweat, and you're working at close quarters with other people for hours. Heat amplifies projection, so the "beast mode" bottle that fills a cold street will genuinely choke a rehearsal room. Under lights, scale everything down — two sprays of something strong beats six of something moderate.`,
- `What survives a set: compositions anchored in ambers, woods and spice hold their structure through sweat, while delicate citrus tops burn off before soundcheck ends. Asad's coffee-spice depth cuts through a sweaty club gig without turning syrupy; Spicebomb Extreme handles cold-venue load-ins and still reads warm on stage.`,
- `Etiquette rule from experience: fragrance is for the audience-distance bubble, not the shared van. Apply to the chest under your shirt rather than the neck for a contained scent cloud, and never re-spray in the green room. Your drummer's sinuses will thank you.`]}
+{slug:'why-fragrance-disappears',title:'Why Your Fragrance "Disappears" After an Hour',dek:'Usually it hasn’t gone anywhere. Here’s what’s actually happening, and what to do about it.',min:4,pids:['pdm-layton','lattafa-khamrah','dior-sauvage-elixir'],
+ body:[`You spray in the morning, you smell great on the way out the door, and by the time you sit down at work it’s gone. It’s one of the most common complaints in fragrance, and most of the time the fragrance is fine. Your nose has just stopped paying attention.`,
+ `<h2>Your nose tunes it out</h2>`,
+ `It’s called olfactory adaptation. When a smell stays constant around you, your brain decides it’s not news and stops reporting it, usually within half an hour to an hour. It’s the same reason you can’t smell your own home but notice a friend’s the second you walk in. The people around you can still smell your fragrance perfectly well; you’re the only one who can’t.`,
+ `The easiest way to check is to ask someone close to you a few hours in, before you reach for the bottle again. Or spray a little on the back of your hand, step outside for a few minutes, and smell it with fresh air in your nose. If it’s there, you don’t need more.`,
+ `<h2>Sometimes the opening really has faded</h2>`,
+ `Every fragrance is built in layers. The first thing you smell, the top notes, is made from the lightest, most volatile ingredients: citrus, mint, crisp fruit. They’re designed to evaporate quickly, so that bright burst you fell in love with in the shop only lasts ten or fifteen minutes. What you live with for the rest of the day is the heart and the base.`,
+ `So if you chose a bottle purely for how it opens, that opening was never going to last, however you apply it. Before you buy, look at the base notes on the product page. That’s the smell you’ll actually be wearing at 3pm.`,
+ `<h2>What genuinely helps</h2>`,
+ `<ul><li><b>Moisturise first.</b> Fragrance holds on to hydrated skin and slips off dry skin. An unscented lotion before you spray makes a noticeable difference.</li><li><b>Spray your clothes as well.</b> Fabric holds scent far longer than skin. A spray on a scarf or the inside of a jacket can still be there the next day. Test a hidden spot first, as some fragrances can mark light fabrics.</li><li><b>Pick heavier bases for long days.</b> Fragrances built on amber, woods, vanilla or tonka simply last longer than citrus-led ones. The three below are good examples.</li></ul>`]},
+{slug:'edt-vs-edp-vs-parfum',title:'EDT vs EDP vs Parfum: What You’re Actually Paying For',dek:'What the letters on the bottle mean, and why "stronger" isn’t always the right buy.',min:5,pids:['chanel-bleu-parfum','dior-sauvage-elixir'],
+ body:[`Eau de toilette, eau de parfum, parfum, extrait. The labels sound like a ranking, and in a way they are, but they don’t tell you as much as you’d think.`,
+ `<h2>What the names mean</h2>`,
+ `They describe how much perfume oil is in the bottle. As a rough guide, an eau de toilette (EDT) is around 5–15% oil, an eau de parfum (EDP) around 15–20%, and a parfum or extrait 20% and up. More oil usually means it lasts longer and sits a little closer and denser on the skin. It also usually means a higher price.`,
+ `<h2>The part nobody tells you</h2>`,
+ `Brands rarely just add more oil to the same recipe. They usually rework it. Bleu de Chanel is a good example: the EDT, EDP and Parfum are related, but the Parfum swaps the EDT’s sharp citrus for a smoother, creamier sandalwood base. They’re three different fragrances that share a name.`,
+ `That catches a lot of people out. You love the EDT, buy the Parfum because it’s "the stronger one", and it doesn’t smell like what you loved. Always try the exact version you’re planning to buy.`,
+ `<h2>When lighter is the better choice</h2>`,
+ `Heat changes everything. A rich, sweet parfum that feels cosy in winter can become heavy and cloying on a 30°C Hong Kong afternoon, while a well-made EDT stays fresh precisely because it lifts off the skin faster. A simple rule: lighter concentrations for hot weather and the office, richer ones for cold evenings. It’s the same thinking behind the season tags on every product here.`]},
+{slug:'how-to-apply-fragrance',title:'How to Apply Fragrance (Most People Do It Wrong)',dek:'Where to spray, how much to use, and the habit worth breaking. A two-minute read.',min:3,pids:['dior-sauvage-elixir','jpg-le-male-elixir'],
+ body:[`There’s no single right way to wear fragrance, but a few small habits make a big difference to how long it lasts and how it comes across to other people.`,
+ `<h2>Where to spray</h2>`,
+ `Warm skin helps a fragrance develop and carry, so aim for the chest, the base of the throat and the sides of the neck. The best time is just after a shower, once you’ve moisturised. Hold the bottle about 10–15&nbsp;cm away so the spray lands on your skin as a light, even layer rather than disappearing into the air.`,
+ `<h2>Stop rubbing your wrists</h2>`,
+ `It’s probably the most common habit, and it works against you. Rubbing warms the skin and speeds up the evaporation of the top notes, so you lose the brightest part of the fragrance in minutes. Spray, then leave it alone to dry.`,
+ `<h2>How much is enough</h2>`,
+ `The stronger the concentration, the less you need. As a starting point:`,
+ `<ul><li><b>Eau de toilette:</b> 4–6 sprays</li><li><b>Eau de parfum:</b> 3–4 sprays</li><li><b>Elixirs and extraits:</b> 2–3 sprays. Something like Sauvage Elixir really only needs two for a full working day.</li></ul>`,
+ `More isn’t better. Over-spraying a strong fragrance doesn’t make it last longer; it just makes the first couple of hours overwhelming for everyone in the lift with you. One bonus: the price-per-wear figures on this site assume 8 sprays, so if you only need four, your bottle costs half as much per wear.`]},
+{slug:'cost-per-wear',title:'Cost Per Wear: The Only Fragrance Maths That Matters',dek:'Why a HK$2,790 bottle can be good value and a HK$300 one can be a waste.',min:4,pids:['creed-aventus','lattafa-khamrah','armaf-cdnim'],
+ body:[`The price on the box tells you surprisingly little. A far more useful number is how much each wear actually costs you.`,
+ `<h2>The simple version</h2>`,
+ `Take the bottle price and divide it by the number of times you’ll wear it. A millilitre is roughly 10 sprays, so a 100&nbsp;ml bottle holds around 1,000. At 8 sprays a day, that’s about 125 wears.`,
+ `<h2>What that looks like in practice</h2>`,
+ `<ul><li><b>Creed Aventus</b> at HK$2,790 works out to roughly <b>HK$22.30</b> each time you wear it.</li><li><b>Lattafa Khamrah</b> at HK$340 is about <b>HK$2.70</b>.</li><li><b>Armaf Club de Nuit Intense Man</b> at HK$380 comes to around <b>HK$2.90</b>.</li></ul>`,
+ `Seen that way, "is Aventus worth it?" turns into a better question: is today worth HK$22? For a wedding or a big night out, easily. For running errands on a Sunday, that’s exactly what a HK$2.70-a-wear bottle is for.`,
+ `<h2>Using it to shop smarter</h2>`,
+ `You’ll find the price per wear on every product page here. It’s a quick way to avoid an expensive blind buy, and a good way to build a small rotation: one or two affordable everyday bottles, and something special saved for the occasions that deserve it.`]},
+{slug:'boost-longevity',title:'How to Make Your Fragrance Last Longer',dek:'Practical, low-effort ways to get more hours out of the bottle you already own.',min:5,pids:['dior-sauvage-elixir','lattafa-khamrah','pdm-layton'],
+ body:[`Some fragrances are simply built to last longer than others, but how you wear and store a bottle makes a real difference too. Here are the things that actually help, roughly in order of how much difference they make.`,
+ `<h2>1. Start with moisturised skin</h2>`,
+ `This is the big one. Fragrance clings to hydrated skin and evaporates quickly from dry skin. Apply an unscented moisturiser straight after your shower, let it sink in for a minute, then spray. A tiny dab of petroleum jelly on the spot you’re about to spray works too, and is especially handy if your skin runs dry.`,
+ `<h2>2. Put some on fabric</h2>`,
+ `Clothes hold scent much longer than skin does, because there’s no body heat burning it off. One spray on a scarf, a collar or the inside of a jacket can still be noticeable the next day. Try it somewhere hidden first, since darker or oilier fragrances can leave a mark on light or delicate fabrics.`,
+ `<h2>3. Spray the right places, then leave it alone</h2>`,
+ `The chest and the sides of the neck stay warm and help the fragrance carry. Spray from about 10–15&nbsp;cm and don’t rub it in. Rubbing heats the skin and burns through the top notes faster.`,
+ `<h2>4. Your hair holds scent well</h2>`,
+ `Hair is great at holding fragrance and releases it every time you move. Most fragrances contain alcohol, though, which can dry hair out, so don’t spray it directly. Mist your hairbrush and brush it through instead.`,
+ `<h2>5. Layer with matching products</h2>`,
+ `If your fragrance comes with a matching body lotion or shower gel, using them together builds a base that holds the scent for longer. An unscented lotion does most of the same job if there isn’t a matching one.`,
+ `<h2>6. Store the bottle properly</h2>`,
+ `Heat, light and air break fragrance down over time, and a tired bottle won’t last as long on skin. Keep yours in its box, or in a drawer or cupboard, somewhere cool. The bathroom is the worst place for it, with the steam and the temperature swings.`,
+ `<h2>7. Choose with longevity in mind</h2>`,
+ `No trick will turn a light citrus cologne into an all-day scent. If lasting power matters most, look at the base notes before you buy: amber, woods, vanilla, tonka, leather and resins are what stay on the skin the longest. In Hong Kong’s heat and humidity, fragrances project more but wear off faster, so a richer formula goes a long way. The three below are among the longest-lasting in the store.`,
+ `<h2>A quick top-up, done right</h2>`,
+ `If you want a boost later in the day, one or two sprays is plenty. Remember you’ve probably stopped noticing it yourself long before anyone else has. A small travel atomiser keeps the bottle at home and the top-up in your pocket.`]}
 ];
 
 /* ================= STATE / STORAGE ================= */
@@ -1199,7 +1239,7 @@ function vGuide(slug){
  <div class="videoslot" style="margin-top:22px"><span class="pp" aria-hidden="true">▶</span>
   <div style="flex:1"><b class="small" style="letter-spacing:.14em;text-transform:uppercase;color:var(--gold)">Watch this guide</b><p class="small mute" style="margin-top:3px">The 90-second video version</p></div>
   <a class="btn ghost" style="padding:9px 14px;font-size:.8rem" href="${CONFIG.INSTA}" target="_blank" rel="noopener" data-action="vidclick" data-video="${g.slug}">Watch →</a></div>
- ${g.body.map(p=>`<p>${p}</p>`).join('')}
+ ${g.body.map(p=>/^<(h2|ul)/.test(p)?p:`<p>${p}</p>`).join('')}
  <h2 style="font-size:1.3rem">Mentioned in this guide</h2>
  <div class="grid g-prod" style="margin-top:18px">${g.pids.map(id=>card(P(id))).join('')}</div>
  </article></div>`;
