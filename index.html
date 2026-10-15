@@ -117,6 +117,14 @@ a.chip:hover,button.chip:hover{border-color:var(--gold);color:var(--gold)}
 .authb{display:inline-flex;gap:8px;align-items:center;font-size:.8rem;color:var(--ok);border:1px solid rgba(63,191,127,.35);background:rgba(63,191,127,.07);padding:8px 13px;border-radius:10px;font-weight:600}
 .stars{color:var(--gold);letter-spacing:2px;font-size:.85rem}
 .paychips{display:flex;flex-wrap:wrap;gap:7px}
+.paymeth{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:8px 0 4px}
+.paymeth label{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;background:var(--panel)}
+.paymeth label:has(input:checked){border-color:var(--gold);background:var(--panel2)}
+.paymeth input{width:auto;accent-color:var(--gold)}
+.paybox{background:var(--panel);border:1px solid var(--gold);border-radius:14px;padding:16px 18px;margin:14px 0;text-align:left}
+.paybox ol{margin:8px 0 0 1.1em;color:#d9d4c8;font-size:.9rem;display:grid;gap:4px}
+.paynum{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.paynum b{font-size:1.25rem;letter-spacing:.03em;color:var(--bone)}
 .paychips span{font-size:.68rem;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:4px 9px;color:var(--mute);letter-spacing:.04em}
 
 /* sections */
@@ -375,7 +383,7 @@ footer.site{border-top:1px solid var(--line);background:var(--panel);margin-top:
         <p class="mute small" style="margin-bottom:12px">New arrivals and restocks go up on Instagram first.</p>
         <a class="btn" href="https://www.instagram.com/pransfragrance" target="_blank" rel="noopener">Follow @pransfragrance</a>
         <div class="paychips" style="margin-top:18px" aria-label="Accepted payment methods">
-          <span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span>
+          <span>FPS · HSBC</span><span>AlipayHK</span>
         </div>
       </div>
     </div>
@@ -403,6 +411,7 @@ const CONFIG = {
   TIKTOK:'https://www.tiktok.com/@pransfragrance',
   INSTA:'https://www.instagram.com/pransfragrance',
   YT:'https://www.youtube.com/@pransfragrance',
+  PAY_PHONE:'+852 5716 8955', // FPS (HSBC) and AlipayHK both go to this number
   CHECKOUT_URL:'', // set to your Shopify/Stripe checkout to hand the bag off; empty = demo checkout
   STATS:{rating:'4.8'} // replace with live counts before launch
 };
@@ -1869,6 +1878,12 @@ const PAGES={
   <h2>Info</h2><p><a class="gold" href="#/about">About</a> · <a class="gold" href="#/contact">Contact</a> · <a class="gold" href="#/faq">FAQ</a> · <a class="gold" href="#/shipping-returns">Collection &amp; Returns</a> · <a class="gold" href="#/authenticity">Authenticity</a> · <a class="gold" href="#/quiz">Scent Finder</a></p>`)
 };
 
+const PAY={
+ fps:{label:'FPS (HSBC)',steps:'Open your bank app and choose <b>FPS / 轉數快</b> → pay to a <b>mobile number</b>.'},
+ alipay:{label:'AlipayHK',steps:'Open <b>AlipayHK</b> → <b>Transfer</b> → transfer to a <b>mobile number</b>.'}};
+const payBox=(m,amount,ref)=>`<div class="paybox"><b class="small" style="letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Pay with ${PAY[m].label}</b>
+ <div class="paynum"><b>${CONFIG.PAY_PHONE}</b><button type="button" class="chip" data-action="copypay">Copy number</button></div>
+ <ol><li>${PAY[m].steps}</li><li>Send <b>${money(amount)}</b> to <b>${CONFIG.PAY_PHONE}</b>.</li>${ref?`<li>Put <b>${esc(ref)}</b> in the payment note so we can match it.</li>`:'<li>Add your order number in the payment note (you\u2019ll see it after you place the order).</li>'}<li>Keep the payment screenshot — we\u2019ll confirm by DM or email before the meet-up.</li></ol></div>`;
 function vCheckout(){
  if(!state.bag.length){go('/');return;}
  const sub=state.bag.reduce((t,i)=>t+SIZES(P(i.id))[i.si].pr*i.q,0);
@@ -1890,15 +1905,21 @@ function vCheckout(){
   </div>
   <div style="margin-top:14px"><label class="small mute" for="coAttr">Which video sent you here? (optional — it genuinely shapes what we stock)</label>
   <select id="coAttr"><option value="">Not from a video / can\u2019t remember</option>${GO_PAGES.map(g=>`<option value="${g.key}"${state.attribution===g.key?' selected':''}>${g.video}</option>`).join('')}<option value="other">Another video</option></select></div>
-  <div class="paychips" style="margin:18px 0 14px" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span></div>
-  <button class="btn wide" type="submit">${CONFIG.CHECKOUT_URL?'Continue to secure payment':'Place order (demo checkout)'}</button>
+  <fieldset style="margin-top:18px"><legend class="small mute">Payment method</legend>
+   <div class="paymeth">
+    <label><input type="radio" name="coPay" value="fps" checked> <span><b>FPS</b> <span class="small mute">· HSBC</span></span></label>
+    <label><input type="radio" name="coPay" value="alipay"> <span><b>AlipayHK</b></span></label>
+   </div></fieldset>
+  <div id="coPayBox">${payBox('fps',sub)}</div>
+  <button class="btn wide" type="submit">${CONFIG.CHECKOUT_URL?'Continue to secure payment':'Place order'}</button>
   <p class="small mute" style="margin-top:10px">✓ Hong Kong only · ✓ In-person hand-over at an MTR station · ✓ Batch-code verified · ✓ 30-day returns on unopened items</p>
  </form></div></div>`;
  let discount=0;
+ document.querySelectorAll('input[name=coPay]').forEach(r=>r.addEventListener('change',()=>{$('#coPayBox').innerHTML=payBox(r.value,sub);}));
  $('#checkoutForm').addEventListener('submit',e=>{
   e.preventDefault();
   const attr=$('#coAttr').value||state.attribution||'none';
-  const order={n:'PF-'+Math.floor(10000+Math.random()*89999),total:Math.max(0,sub-discount),attr,email:$('#coEmail').value,ig:state.ig};
+  const order={n:'PF-'+Math.floor(10000+Math.random()*89999),total:Math.max(0,sub-discount),attr,email:$('#coEmail').value,ig:state.ig,pay:(document.querySelector('input[name=coPay]:checked')||{}).value||'fps'};
   if(CONFIG.CHECKOUT_URL){location.href=CONFIG.CHECKOUT_URL+'?attribution='+encodeURIComponent(attr);return;}
   state.lastOrder=order;track('purchase',{value:order.total,attribution:attr,order:order.n,ig:state.ig||'none'});
   state.bag=[];store.set('bag',[]);renderBag();
@@ -1912,6 +1933,7 @@ function vThanks(){
  <p class="eyebrow">Order confirmed</p>
  <h1 style="margin:10px 0">Thank you${o?` — ${esc(o.n)}`:''}.</h1>
  <p class="mute">Confirmation is on its way${o?` to ${esc(o.email)}`:''}. We\u2019ll DM or email you to agree an MTR station and a time for the hand-over.</p>
+ ${o?payBox(o.pay||'fps',o.total,o.n):''}
  ${o&&o.attr&&o.attr!=='none'?`<p class="why" style="text-align:left;display:inline-block">Attribution noted: <b>${esc(o.attr)}</b>. Thank you — knowing which video sent you directly decides what we stock next.</p>`:`<p class="mute small">One favour: DM us on Instagram with which video brought you here. It directly decides what we stock next.</p>`}
  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px">
   ${followBtn()}
@@ -2037,7 +2059,7 @@ function renderBag(){
  foot.innerHTML=`
  <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="mute">Subtotal</span><b>${money(bagTotal())}</b></div>
  <a class="btn wide" href="#/checkout">Checkout — ${money(bagTotal())}</a>
- <div class="paychips" style="margin-top:12px;justify-content:center" aria-label="Accepted payment methods"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>FPS</span></div>`;
+ <div class="paychips" style="margin-top:12px;justify-content:center" aria-label="Accepted payment methods"><span>FPS · HSBC</span><span>AlipayHK</span></div>`;
 }
 function xsellHtml(){
  const inBag=state.bag.map(i=>i.id);
@@ -2124,6 +2146,7 @@ document.addEventListener('click',e=>{
  else if(act==='qopt'){state.quiz.answers[state.quiz.step]=+b.dataset.i;store.set('quiz',state.quiz.answers);state.quiz.step++;vQuiz();}
  else if(act==='qresults'){state.quiz.step=QUIZ.length+1;vQuizResults();}
  else if(act==='alltier'){vAll((state.allView||{}).sort||'featured',b.dataset.k);}
+ else if(act==='copypay'){const t=CONFIG.PAY_PHONE;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='Copied ✓';},()=>{b.textContent=t;});}
  else if(act==='vidclick')track('video_click',{video:b.dataset.video});
  else if(act==='filter'){
   closeAll();
