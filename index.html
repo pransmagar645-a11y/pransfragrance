@@ -412,6 +412,7 @@ const CONFIG = {
   INSTA:'https://www.instagram.com/pransfragrance',
   YT:'https://www.youtube.com/@pransfragrance',
   PAY_PHONE:'+852 5716 8955', // FPS (HSBC) and AlipayHK both go to this number
+  WHATSAPP:'85257168955', // orders are sent here as a pre-filled WhatsApp message
   CHECKOUT_URL:'', // set to your Shopify/Stripe checkout to hand the bag off; empty = demo checkout
   STATS:{rating:'4.8'} // replace with live counts before launch
 };
@@ -1379,7 +1380,7 @@ const state={
  attribution:store.get('attr',null),
  quiz:{answers:store.get('quiz',Array(QUIZ.length).fill(null)),step:-1},
  popupDone:store.get('popup',false),
- lastOrder:null
+ lastOrder:store.get('lastorder',null)
 };
 
 /* ================= ANALYTICS ================= */
@@ -1898,7 +1899,7 @@ function vCheckout(){
  </div>
  <form id="checkoutForm">
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-   <div><label class="small mute" for="coEmail">Email (for order confirmation)</label><input id="coEmail" type="email" required></div>
+   <div><label class="small mute" for="coEmail">Email</label><input id="coEmail" type="email" required></div>
    <div><label class="small mute" for="coName">Full name</label><input id="coName" required></div>
    <div><label class="small mute" for="coStation">Preferred MTR station for hand-over</label><input id="coStation" placeholder="e.g. Mong Kok, Central, Kowloon Tong" required></div>
    <div><label class="small mute" for="coTime">Preferred days / times</label><input id="coTime" placeholder="e.g. weekday evenings after 7pm" required></div>
@@ -1919,27 +1920,37 @@ function vCheckout(){
  $('#checkoutForm').addEventListener('submit',e=>{
   e.preventDefault();
   const attr=$('#coAttr').value||state.attribution||'none';
-  const order={n:'PF-'+Math.floor(10000+Math.random()*89999),total:Math.max(0,sub-discount),attr,email:$('#coEmail').value,ig:state.ig,pay:(document.querySelector('input[name=coPay]:checked')||{}).value||'fps'};
+  const pay=(document.querySelector('input[name=coPay]:checked')||{}).value||'fps';
+  const order={n:'PF-'+Math.floor(10000+Math.random()*89999),total:Math.max(0,sub-discount),attr,email:$('#coEmail').value,ig:state.ig,pay,
+   name:$('#coName').value.trim(),station:$('#coStation').value.trim(),time:$('#coTime').value.trim(),
+   items:state.bag.map(i=>{const p=P(i.id),s=SIZES(p)[i.si];return `${i.q}× ${p.brand} ${p.name} (${p.ml}ml) — ${money(s.pr*i.q)}`;})};
+  order.wa=waLink(order);
   if(CONFIG.CHECKOUT_URL){location.href=CONFIG.CHECKOUT_URL+'?attribution='+encodeURIComponent(attr);return;}
-  state.lastOrder=order;track('purchase',{value:order.total,attribution:attr,order:order.n,ig:state.ig||'none'});
+  state.lastOrder=order;store.set('lastorder',order);track('purchase',{value:order.total,attribution:attr,order:order.n,ig:state.ig||'none'});
+  try{window.open(order.wa,'_blank','noopener');}catch(err){}
   state.bag=[];store.set('bag',[]);renderBag();
   go('/thank-you');
  });
 }
+function waLink(o){
+ const lines=[`New order ${o.n}`,'',...o.items,'',`Total: ${money(o.total)}`,`Payment: ${PAY[o.pay].label}`,'',`Name: ${o.name}`,`Email: ${o.email}`,`MTR station: ${o.station}`,`Preferred time: ${o.time}`];
+ return `https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(lines.join('\n'))}`;
+}
 function vThanks(){
  const o=state.lastOrder;
- setMeta('Order Confirmed — Prans Fragrance','Thank you for your order.','/thank-you');
+ setMeta('Send your order — Prans Fragrance','Send your order to us on WhatsApp.','/thank-you');
  app.innerHTML=`<div class="wrap"><div class="pagebox" style="text-align:center;max-width:560px">
- <p class="eyebrow">Order confirmed</p>
- <h1 style="margin:10px 0">Thank you${o?` — ${esc(o.n)}`:''}.</h1>
- <p class="mute">Confirmation is on its way${o?` to ${esc(o.email)}`:''}. We\u2019ll DM or email you to agree an MTR station and a time for the hand-over.</p>
+ <p class="eyebrow">One last step</p>
+ <h1 style="margin:10px 0">Send us your order${o?` — ${esc(o.n)}`:''}</h1>
+ <p class="mute">Your order reaches us on WhatsApp. If it didn\u2019t open automatically, tap below and press <b>Send</b> — we\u2019ll reply to confirm and agree an MTR station and time.</p>
+ ${o?`<a class="btn wide" href="${o.wa}" target="_blank" rel="noopener" style="margin:16px 0 4px;background:#25d366;color:#0e0d0b">Send order on WhatsApp</a>
+ <p class="small mute">Your order isn\u2019t placed until that message is sent.</p>`:''}
  ${o?payBox(o.pay||'fps',o.total,o.n):''}
  ${o&&o.attr&&o.attr!=='none'?`<p class="why" style="text-align:left;display:inline-block">Attribution noted: <b>${esc(o.attr)}</b>. Thank you — knowing which video sent you directly decides what we stock next.</p>`:`<p class="mute small">One favour: DM us on Instagram with which video brought you here. It directly decides what we stock next.</p>`}
  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px">
   ${followBtn()}
   <a class="btn ghost" href="#/">Keep browsing</a>
  </div>
- <p class="small mute" style="margin-top:20px">After the hand-over, you\u2019ll get one email asking for a star rating — reviews on this site come only from verified orders.</p>
  </div></div>`;
 }
 function v404(){
